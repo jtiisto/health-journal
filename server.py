@@ -4,6 +4,7 @@ Enhanced with per-record versioning and multi-client sync support
 """
 import json
 import sqlite3
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from contextlib import contextmanager, asynccontextmanager
@@ -11,13 +12,16 @@ from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, ConfigDict
 
 
 # Configuration
 DATABASE_PATH = Path(__file__).parent / "journal.db"
 PUBLIC_DIR = Path(__file__).parent / "public"
+
+# Cache busting: unique version generated on each server start
+SERVER_VERSION = uuid.uuid4().hex[:8]
 
 @asynccontextmanager
 async def lifespan(app):
@@ -645,24 +649,43 @@ def get_unresolved_conflicts(client_id: str):
 # Static file serving
 @app.get("/")
 def serve_root():
-    """Serve the main index.html."""
+    """Serve the main index.html with cache-busting version injected."""
     index_path = PUBLIC_DIR / "index.html"
-    if index_path.exists():
-        return FileResponse(index_path)
-    raise HTTPException(status_code=404, detail="index.html not found")
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="index.html not found")
 
+    # Read and inject version into static file URLs
+    html = index_path.read_text()
+    html = html.replace('href="/styles.css"', f'href="/styles.css?v={SERVER_VERSION}"')
+    html = html.replace('src="/js/app.js"', f'src="/js/app.js?v={SERVER_VERSION}"')
 
-# Mount static files for js and css
-app.mount("/js", StaticFiles(directory=PUBLIC_DIR / "js"), name="js")
+    return HTMLResponse(content=html)
 
 
 @app.get("/styles.css")
 def serve_css():
-    """Serve the stylesheet."""
+    """Serve the stylesheet with no-cache headers."""
     css_path = PUBLIC_DIR / "styles.css"
     if css_path.exists():
-        return FileResponse(css_path, media_type="text/css")
+        return FileResponse(
+            css_path,
+            media_type="text/css",
+            headers={"Cache-Control": "no-cache, must-revalidate"}
+        )
     raise HTTPException(status_code=404, detail="styles.css not found")
+
+
+@app.get("/js/{file_path:path}")
+def serve_js(file_path: str):
+    """Serve JavaScript files with no-cache headers."""
+    js_path = PUBLIC_DIR / "js" / file_path
+    if js_path.exists() and js_path.is_file():
+        return FileResponse(
+            js_path,
+            media_type="application/javascript",
+            headers={"Cache-Control": "no-cache, must-revalidate"}
+        )
+    raise HTTPException(status_code=404, detail=f"JS file not found: {file_path}")
 
 
 if __name__ == "__main__":
