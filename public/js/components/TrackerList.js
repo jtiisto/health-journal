@@ -12,7 +12,7 @@ import { TrackerItem } from './TrackerItem.js';
 const html = htm.bind(h);
 
 function DateSelector({ selected, dirtyConfig, hasConflicts, onDateSelect }) {
-    const days = getLastNDays(7);
+    const days = getLastNDays(5);
     const today = getToday();
 
     const handleDateClick = (date) => {
