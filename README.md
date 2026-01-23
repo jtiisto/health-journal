@@ -77,22 +77,43 @@ source venv/bin/activate
 python src/server.py
 ```
 
-The server will start on `http://localhost:8001`.
+The server will start on `http://localhost:8000`.
+
+### Running in Test Mode
+
+Test mode runs the server on port 8001, allowing you to run both production and test instances simultaneously on the same machine:
+
+```bash
+./bin/server.sh --test start
+```
+
+Or run directly with Python:
+
+```bash
+python src/server.py --test
+```
+
+You can also specify a custom port:
+
+```bash
+python src/server.py --port 9000
+```
 
 ### Server Commands
 
 ```bash
-./bin/server.sh start    # Start the server
-./bin/server.sh stop     # Stop the server
-./bin/server.sh status   # Check server status
-./bin/server.sh restart  # Restart the server
-./bin/server.sh logs     # Show last 50 lines of logs
-./bin/server.sh follow   # Follow logs in real-time
+./bin/server.sh start         # Start the server (port 8000)
+./bin/server.sh --test start  # Start in test mode (port 8001)
+./bin/server.sh stop          # Stop the server
+./bin/server.sh status        # Check server status
+./bin/server.sh restart       # Restart the server
+./bin/server.sh logs          # Show last 50 lines of logs
+./bin/server.sh follow        # Follow logs in real-time
 ```
 
 ### Accessing the Application
 
-Open your browser and navigate to `http://localhost:8001`.
+Open your browser and navigate to `http://localhost:8000` (or `http://localhost:8001` in test mode).
 
 ## API Endpoints
 
@@ -150,6 +171,45 @@ JOURNAL_DB_PATH=/path/to/journal.db PYTHONPATH=src python -m journal_mcp
 source venv/bin/activate
 uvicorn src.server:app --reload --host 0.0.0.0 --port 8000
 ```
+
+### Running Tests
+
+The project includes a comprehensive test suite with unit, integration, and end-to-end tests. Tests run automatically via git hooks before commits and pushes.
+
+**Run all tests:**
+
+```bash
+pytest test/ -v
+```
+
+**Run tests by category:**
+
+```bash
+pytest test/ -m unit         # Unit tests only
+pytest test/ -m integration  # Integration tests only
+pytest test/ -m e2e          # End-to-end tests only
+```
+
+**Run tests with coverage:**
+
+```bash
+pytest test/ -v --cov=src --cov-report=term-missing
+```
+
+**Run a specific test file:**
+
+```bash
+pytest test/integration/test_sync_update.py -v
+```
+
+### Git Hooks
+
+The project includes pre-configured git hooks:
+
+- **pre-commit**: Runs tests with fail-fast mode before each commit
+- **pre-push**: Runs the full test suite with 90% coverage requirement before push
+
+These hooks are located in `.git/hooks/` and run automatically.
 
 ### Database Schema
 
