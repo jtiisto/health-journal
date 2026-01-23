@@ -4,10 +4,12 @@
 # Usage: ./server.sh {start|stop|status|restart|logs}
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VENV_DIR="$SCRIPT_DIR/venv"
-PID_FILE="$SCRIPT_DIR/.server.pid"
-LOG_FILE="$SCRIPT_DIR/server.log"
-PORT=8000
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+VENV_DIR="$PROJECT_ROOT/venv"
+PID_FILE="$PROJECT_ROOT/.server.pid"
+LOG_FILE="$PROJECT_ROOT/server.log"
+SRC_DIR="$PROJECT_ROOT/src"
+PORT=8001
 
 # Colors for output
 RED='\033[0;31m'
@@ -43,10 +45,10 @@ start_server() {
     echo -e "${GREEN}Starting server...${NC}"
 
     # Activate virtual environment and start server
-    cd "$SCRIPT_DIR"
+    cd "$PROJECT_ROOT"
     source "$VENV_DIR/bin/activate"
 
-    nohup python server.py > "$LOG_FILE" 2>&1 &
+    nohup python "$SRC_DIR/server.py" > "$LOG_FILE" 2>&1 &
     local pid=$!
     echo $pid > "$PID_FILE"
 

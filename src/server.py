@@ -17,8 +17,9 @@ from pydantic import BaseModel, ConfigDict
 
 
 # Configuration
-DATABASE_PATH = Path(__file__).parent / "journal.db"
-PUBLIC_DIR = Path(__file__).parent / "public"
+PROJECT_ROOT = Path(__file__).parent.parent
+DATABASE_PATH = PROJECT_ROOT / "journal.db"
+PUBLIC_DIR = PROJECT_ROOT / "public"
 
 # Cache busting: unique version generated on each server start
 SERVER_VERSION = uuid.uuid4().hex[:8]
@@ -690,4 +691,4 @@ def serve_js(file_path: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

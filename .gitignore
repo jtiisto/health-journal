@@ -3,6 +3,9 @@ venv/
 __pycache__/
 *.pyc
 *.pyo
+*.egg-info/
+dist/
+build/
 
 # Database
 journal.db
@@ -21,3 +24,8 @@ server.log
 
 # PDFs (large binary files)
 *.pdf
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
