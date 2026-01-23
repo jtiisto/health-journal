@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "journal": {
+      "command": "python",
+      "args": ["-m", "journal_mcp"],
+      "env": {
+        "JOURNAL_DB_PATH": "/path/to/journal/journal.db",
+        "PYTHONPATH": "/path/to/journal/src"
+      }
+    }
+  }
+}
