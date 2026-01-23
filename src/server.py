@@ -690,5 +690,13 @@ def serve_js(file_path: str):
 
 
 if __name__ == "__main__":
+    import argparse
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+
+    parser = argparse.ArgumentParser(description="Personal Journal Server")
+    parser.add_argument("--test", action="store_true", help="Run in testing mode (port 8001)")
+    parser.add_argument("--port", type=int, help="Override the port number")
+    args = parser.parse_args()
+
+    port = args.port if args.port else (8001 if args.test else 8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)

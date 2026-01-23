@@ -9,7 +9,10 @@ VENV_DIR="$PROJECT_ROOT/venv"
 PID_FILE="$PROJECT_ROOT/.server.pid"
 LOG_FILE="$PROJECT_ROOT/server.log"
 SRC_DIR="$PROJECT_ROOT/src"
-PORT=8001
+
+# Default port (8000 for production, 8001 for testing)
+PORT=8000
+TEST_MODE=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -48,7 +51,7 @@ start_server() {
     cd "$PROJECT_ROOT"
     source "$VENV_DIR/bin/activate"
 
-    nohup python "$SRC_DIR/server.py" > "$LOG_FILE" 2>&1 &
+    nohup python "$SRC_DIR/server.py" $TEST_MODE > "$LOG_FILE" 2>&1 &
     local pid=$!
     echo $pid > "$PID_FILE"
 
@@ -140,7 +143,10 @@ follow_logs() {
 }
 
 usage() {
-    echo "Usage: $0 {start|stop|status|restart|logs|follow}"
+    echo "Usage: $0 [--test] {start|stop|status|restart|logs|follow}"
+    echo ""
+    echo "Options:"
+    echo "  --test  - Run in testing mode (port 8001 instead of 8000)"
     echo ""
     echo "Commands:"
     echo "  start   - Start the server"
@@ -150,6 +156,13 @@ usage() {
     echo "  logs    - Show last 50 lines of logs"
     echo "  follow  - Follow logs in real-time"
 }
+
+# Parse --test flag
+if [ "$1" = "--test" ]; then
+    TEST_MODE="--test"
+    PORT=8001
+    shift
+fi
 
 # Main
 case "$1" in
