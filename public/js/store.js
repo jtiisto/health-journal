@@ -17,7 +17,8 @@ const KEYS = {
     METADATA: 'app_metadata',
     CONFIG: 'tracker_config',
     LOGS: 'daily_logs',
-    CLIENT_ID: 'client_id'
+    CLIENT_ID: 'client_id',
+    COLLAPSED_CATEGORIES: 'collapsed_categories'
 };
 
 // ==================== Signals ====================
@@ -55,6 +56,30 @@ export const notifications = signal([]);
 
 // Edit state for config screen
 export const editingTracker = signal(null);
+
+// Collapsed categories state
+export const collapsedCategories = signal(new Set());
+
+// ==================== Collapsed Categories ====================
+
+export function toggleCategoryCollapsed(category) {
+    const current = new Set(collapsedCategories.value);
+    if (current.has(category)) {
+        current.delete(category);
+    } else {
+        current.add(category);
+    }
+    collapsedCategories.value = current;
+    saveCollapsedCategories();
+}
+
+export function isCategoryCollapsed(category) {
+    return collapsedCategories.value.has(category);
+}
+
+async function saveCollapsedCategories() {
+    await localforage.setItem(KEYS.COLLAPSED_CATEGORIES, Array.from(collapsedCategories.value));
+}
 
 // ==================== Notifications ====================
 
@@ -96,11 +121,12 @@ export async function initializeStore() {
     try {
         isLoading.value = true;
 
-        const [metadata, config, logs, clientId] = await Promise.all([
+        const [metadata, config, logs, clientId, collapsed] = await Promise.all([
             localforage.getItem(KEYS.METADATA),
             localforage.getItem(KEYS.CONFIG),
             localforage.getItem(KEYS.LOGS),
-            getClientId()
+            getClientId(),
+            localforage.getItem(KEYS.COLLAPSED_CATEGORIES)
         ]);
 
         batch(() => {
@@ -114,6 +140,7 @@ export async function initializeStore() {
 
             trackerConfig.value = config || [];
             dailyLogs.value = logs || {};
+            collapsedCategories.value = new Set(collapsed || []);
         });
 
         updateSyncStatus();

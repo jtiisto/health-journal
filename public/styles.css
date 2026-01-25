@@ -254,14 +254,39 @@ body {
     margin-bottom: var(--spacing-lg);
 }
 
+.category-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) 0;
+    margin-bottom: var(--spacing-sm);
+    user-select: none;
+}
+
+.category-header:hover {
+    opacity: 0.8;
+}
+
+.category-chevron {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+    line-height: 1;
+}
+
+.category-chevron.collapsed {
+    transform: rotate(-90deg);
+}
+
 .category-title {
     font-size: var(--font-size-md);
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: var(--spacing-sm);
-    padding-left: var(--spacing-xs);
+    margin: 0;
+    padding: 0;
 }
 
 /* Tracker Item */
@@ -350,6 +375,7 @@ body {
     background: var(--bg-tertiary);
     border-radius: var(--radius-full);
     cursor: pointer;
+    touch-action: none;
 }
 
 .tracker-slider input[type="range"]::-webkit-slider-thumb {

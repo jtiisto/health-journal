@@ -91,6 +91,7 @@ export function TrackerItem({ tracker }) {
                         step="25"
                         value=${value ?? 50}
                         onInput=${handleSliderChange}
+                        onWheel=${(e) => e.preventDefault()}
                         disabled=${!editable}
                     />
                 </div>

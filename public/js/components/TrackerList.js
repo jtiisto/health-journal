@@ -5,7 +5,7 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { effect } from '@preact/signals';
 import htm from 'htm';
-import { trackerConfig, selectedDate, syncMetadata, pendingConflicts } from '../store.js';
+import { trackerConfig, selectedDate, syncMetadata, pendingConflicts, collapsedCategories, toggleCategoryCollapsed } from '../store.js';
 import { getLastNDays, shouldShowTracker, groupByCategory, getToday } from '../utils.js';
 import { TrackerItem } from './TrackerItem.js';
 
@@ -46,6 +46,7 @@ export function TrackerList() {
     const [date, setDate] = useState(selectedDate.value);
     const [dirtyConfig, setDirtyConfig] = useState(syncMetadata.value.dirtyConfig);
     const [hasConflicts, setHasConflicts] = useState(pendingConflicts.value.length > 0);
+    const [collapsed, setCollapsed] = useState(new Set(collapsedCategories.value));
 
     useEffect(() => {
         const dispose = effect(() => {
@@ -53,6 +54,7 @@ export function TrackerList() {
             setDate(selectedDate.value);
             setDirtyConfig(syncMetadata.value.dirtyConfig);
             setHasConflicts(pendingConflicts.value.length > 0);
+            setCollapsed(new Set(collapsedCategories.value));
         });
         return dispose;
     }, []);
@@ -101,14 +103,20 @@ export function TrackerList() {
         <div>
             <${DateSelector} selected=${date} dirtyConfig=${dirtyConfig} hasConflicts=${hasConflicts} onDateSelect=${handleDateSelect} />
             <div class="main-content">
-                ${categories.map(category => html`
-                    <div class="category" key=${category}>
-                        <h2 class="category-title">${category}</h2>
-                        ${grouped[category].map(tracker => html`
-                            <${TrackerItem} tracker=${tracker} key=${tracker.id} />
-                        `)}
-                    </div>
-                `)}
+                ${categories.map(category => {
+                    const isCollapsed = collapsed.has(category);
+                    return html`
+                        <div class="category" key=${category}>
+                            <div class="category-header" onClick=${() => toggleCategoryCollapsed(category)}>
+                                <span class="category-chevron ${isCollapsed ? 'collapsed' : ''}">▼</span>
+                                <h2 class="category-title">${category}</h2>
+                            </div>
+                            ${!isCollapsed && grouped[category].map(tracker => html`
+                                <${TrackerItem} tracker=${tracker} key=${tracker.id} />
+                            `)}
+                        </div>
+                    `;
+                })}
             </div>
         </div>
     `;
