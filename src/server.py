@@ -11,6 +11,7 @@ from contextlib import contextmanager, asynccontextmanager
 from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, ConfigDict
@@ -33,6 +34,15 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Personal Journal Server", lifespan=lifespan)
+
+# CORS middleware - allow all origins for development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Database helpers
@@ -660,7 +670,10 @@ def serve_root():
     html = html.replace('href="/styles.css"', f'href="/styles.css?v={SERVER_VERSION}"')
     html = html.replace('src="/js/app.js"', f'src="/js/app.js?v={SERVER_VERSION}"')
 
-    return HTMLResponse(content=html)
+    return HTMLResponse(
+        content=html,
+        headers={"Cache-Control": "no-cache, must-revalidate"}
+    )
 
 
 @app.get("/styles.css")

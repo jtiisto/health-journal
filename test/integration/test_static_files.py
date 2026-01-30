@@ -76,3 +76,33 @@ class TestStaticFiles:
         import re
         match = re.search(r'\?v=([a-f0-9]{8})', content)
         assert match is not None
+
+    def test_html_has_no_cache_header(self, client):
+        """HTML page should have no-cache header."""
+        response = client.get("/")
+        cache_control = response.headers.get("cache-control", "")
+        assert "no-cache" in cache_control
+
+
+@pytest.mark.integration
+class TestCORS:
+    def test_cors_headers_on_api_response(self, client):
+        """API responses should include CORS headers when Origin is present."""
+        response = client.get(
+            "/api/sync/status",
+            headers={"Origin": "http://example.com"}
+        )
+        assert response.headers.get("access-control-allow-origin") == "*"
+
+    def test_cors_preflight_request(self, client):
+        """OPTIONS preflight requests should return CORS headers."""
+        response = client.options(
+            "/api/sync/full",
+            headers={
+                "Origin": "http://example.com",
+                "Access-Control-Request-Method": "POST",
+            }
+        )
+        assert response.status_code == 200
+        assert "access-control-allow-origin" in response.headers
+        assert "access-control-allow-methods" in response.headers
