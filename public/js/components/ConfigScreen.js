@@ -158,6 +158,7 @@ function TrackerForm({ tracker, onSave, onCancel }) {
                             <option value="simple">Simple (Yes/No only)</option>
                             <option value="quantifiable">Quantifiable (Yes/No + Value)</option>
                             <option value="evaluation">Evaluation (Yes/No + Percentage)</option>
+                            <option value="note">Note (Yes/No + Text)</option>
                         </select>
                     </div>
 
@@ -231,6 +232,7 @@ function TrackerConfigItem({ tracker, onEdit, onDelete }) {
         switch (type) {
             case 'quantifiable': return `Quantifiable${tracker.unit ? ` (${tracker.unit})` : ''}`;
             case 'evaluation': return 'Evaluation (%)';
+            case 'note': return 'Note';
             default: return 'Simple';
         }
     };

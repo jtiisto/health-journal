@@ -291,13 +291,22 @@ body {
 
 /* Tracker Item */
 .tracker-item {
-    display: flex;
-    align-items: center;
     padding: var(--spacing-md);
     background-color: var(--bg-card);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-sm);
+}
+
+.tracker-row {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-md);
+}
+
+.tracker-item-note {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
 }
 
 .tracker-item.disabled {
@@ -402,6 +411,33 @@ body {
     color: var(--text-secondary);
     min-width: 35px;
     text-align: right;
+}
+
+/* Text input for Note type */
+.tracker-note-input {
+    width: 100%;
+}
+
+.tracker-note-input textarea {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: var(--font-size-md);
+    font-family: inherit;
+    resize: none;
+    overflow-y: auto;
+}
+
+.tracker-note-input textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.tracker-note-input textarea::placeholder {
+    color: var(--text-muted);
 }
 
 /* Config Screen */

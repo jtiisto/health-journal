@@ -56,43 +56,61 @@ export function TrackerItem({ tracker }) {
         updateEntry(date, tracker.id, { value: Number(e.target.value) });
     };
 
+    const handleNoteChange = (e) => {
+        if (!editable) return;
+        updateEntry(date, tracker.id, { value: e.target.value });
+    };
+
     return html`
-        <div class="tracker-item ${!editable ? 'disabled' : ''}">
-            <div class="tracker-checkbox">
-                <input
-                    type="checkbox"
-                    checked=${completed}
-                    onChange=${handleCompletedChange}
-                    disabled=${!editable}
-                />
-            </div>
-            <div class="tracker-info">
-                <div class="tracker-name">${tracker.name}</div>
-            </div>
-            ${tracker.type === 'quantifiable' && html`
-                <div class="tracker-value-input">
+        <div class="tracker-item ${!editable ? 'disabled' : ''} ${tracker.type === 'note' ? 'tracker-item-note' : ''}">
+            <div class="tracker-row">
+                <div class="tracker-checkbox">
                     <input
-                        type="number"
-                        value=${value ?? ''}
-                        onChange=${handleValueChange}
+                        type="checkbox"
+                        checked=${completed}
+                        onChange=${handleCompletedChange}
                         disabled=${!editable}
-                        min="0"
-                        step="any"
                     />
-                    <span class="tracker-unit">${tracker.unit || ''}</span>
                 </div>
-            `}
-            ${tracker.type === 'evaluation' && html`
-                <div class="tracker-slider">
-                    <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="25"
-                        value=${value ?? 50}
-                        onInput=${handleSliderChange}
-                        onWheel=${(e) => e.preventDefault()}
+                <div class="tracker-info">
+                    <div class="tracker-name">${tracker.name}</div>
+                </div>
+                ${tracker.type === 'quantifiable' && html`
+                    <div class="tracker-value-input">
+                        <input
+                            type="number"
+                            value=${value ?? ''}
+                            onChange=${handleValueChange}
+                            disabled=${!editable}
+                            min="0"
+                            step="any"
+                        />
+                        <span class="tracker-unit">${tracker.unit || ''}</span>
+                    </div>
+                `}
+                ${tracker.type === 'evaluation' && html`
+                    <div class="tracker-slider">
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            step="25"
+                            value=${value ?? 50}
+                            onInput=${handleSliderChange}
+                            onWheel=${(e) => e.preventDefault()}
+                            disabled=${!editable}
+                        />
+                    </div>
+                `}
+            </div>
+            ${tracker.type === 'note' && html`
+                <div class="tracker-note-input">
+                    <textarea
+                        value=${value ?? ''}
+                        onInput=${handleNoteChange}
                         disabled=${!editable}
+                        placeholder="Add note..."
+                        rows="2"
                     />
                 </div>
             `}
