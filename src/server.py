@@ -657,6 +657,52 @@ def get_unresolved_conflicts(client_id: str):
         return {"conflicts": conflicts}
 
 
+# PWA asset serving
+@app.get("/manifest.json")
+def serve_manifest():
+    """Serve the PWA manifest."""
+    manifest_path = PUBLIC_DIR / "manifest.json"
+    if manifest_path.exists():
+        return FileResponse(
+            manifest_path,
+            media_type="application/manifest+json",
+            headers={"Cache-Control": "no-cache, must-revalidate"}
+        )
+    raise HTTPException(status_code=404, detail="manifest.json not found")
+
+
+@app.get("/sw.js")
+def serve_sw():
+    """Serve the service worker from root scope."""
+    sw_path = PUBLIC_DIR / "sw.js"
+    if sw_path.exists():
+        return FileResponse(
+            sw_path,
+            media_type="application/javascript",
+            headers={
+                "Cache-Control": "no-cache, must-revalidate",
+                "Service-Worker-Allowed": "/"
+            }
+        )
+    raise HTTPException(status_code=404, detail="sw.js not found")
+
+
+@app.get("/icons/{file_path:path}")
+def serve_icons(file_path: str):
+    """Serve PWA icon files."""
+    icon_path = PUBLIC_DIR / "icons" / file_path
+    if icon_path.exists() and icon_path.is_file():
+        media_type = "image/png"
+        if file_path.endswith(".svg"):
+            media_type = "image/svg+xml"
+        return FileResponse(
+            icon_path,
+            media_type=media_type,
+            headers={"Cache-Control": "public, max-age=86400"}
+        )
+    raise HTTPException(status_code=404, detail=f"Icon not found: {file_path}")
+
+
 # Static file serving
 @app.get("/")
 def serve_root():
