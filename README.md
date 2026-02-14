@@ -4,11 +4,14 @@ A full-stack web application for personal habit and metric tracking with multi-d
 
 ## Features
 
+- **Installable PWA**: Full Progressive Web App with offline support, installable on mobile and desktop
 - **Tracker Management**: Create and manage trackers for habits, supplements, metrics, and more
 - **Multiple Tracker Types**:
   - Simple (checkbox/boolean)
   - Quantifiable (numeric values)
   - Evaluation (rating scales)
+  - Note (free-text input)
+- **Offline-First**: All data persisted locally via IndexedDB, service worker caches app shell for full offline use
 - **Multi-Client Sync**: Sync data across multiple devices with conflict detection and resolution
 - **Per-Record Versioning**: Track changes at the individual record level
 - **MCP Integration**: Model Context Protocol server for LLM access to journal data
@@ -23,6 +26,9 @@ journal/
 ├── public/                 # Frontend static files
 │   ├── index.html          # Main HTML entry point
 │   ├── styles.css          # Stylesheet
+│   ├── manifest.json       # PWA web app manifest
+│   ├── sw.js               # Service worker for offline caching
+│   ├── icons/              # App icons (SVG, PNG, maskable)
 │   └── js/                 # JavaScript modules
 │       ├── app.js          # Main application component
 │       ├── store.js        # State management with signals

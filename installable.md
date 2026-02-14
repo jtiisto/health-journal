@@ -146,6 +146,6 @@ Capture the `beforeinstallprompt` event in `app.js` to show a custom install but
 All of these must pass for the browser to show an install prompt:
 
 - [ ] Served over HTTPS (or localhost)
-- [ ] Has a web app manifest with `name`, `icons` (192+512), `start_url`, `display`
-- [ ] Has a registered service worker with a `fetch` event handler
-- [ ] Icons are fetchable and correct sizes
+- [x] Has a web app manifest with `name`, `icons` (192+512), `start_url`, `display`
+- [x] Has a registered service worker with a `fetch` event handler
+- [x] Icons are fetchable and correct sizes

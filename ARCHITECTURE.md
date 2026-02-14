@@ -110,9 +110,33 @@ The application is designed to work offline with eventual consistency:
 
 ### PWA Capabilities
 
-- **Installable**: Can be added to home screen on mobile devices
+- **Fully Installable**: Web App Manifest with icons, passes Chrome installability checks
+- **Service Worker**: Offline asset caching with network-first strategy for app shell
 - **Mobile-Optimized**: Responsive design with touch-friendly controls
 - **Viewport Locked**: No zoom to maintain consistent UI
+
+### Service Worker (`public/sw.js`)
+
+The service worker provides offline asset caching alongside the existing LocalForage data layer:
+
+| Request Type | Strategy | Rationale |
+|-------------|----------|-----------|
+| API (`/api/*`) | Network-only | LocalForage handles offline data |
+| CDN (`esm.sh`) | Cache-first | Versioned/immutable URLs |
+| App shell (local files) | Network-first, cache fallback | Respects server cache-busting |
+
+Cache versioning uses a `CACHE_VERSION` constant. On `activate`, old caches are deleted and `clients.claim()` is called for immediate control. Query parameters are stripped when matching cache keys to work with the server's `?v={uuid}` cache-busting.
+
+### App Icons (`public/icons/`)
+
+| File | Size | Purpose |
+|------|------|---------|
+| `icon.svg` | scalable | Favicon |
+| `icon-192.png` | 192x192 | Manifest icon |
+| `icon-512.png` | 512x512 | Manifest icon, splash |
+| `icon-maskable-192.png` | 192x192 | Android adaptive icon |
+| `icon-maskable-512.png` | 512x512 | Android adaptive icon |
+| `apple-touch-icon.png` | 180x180 | iOS home screen |
 
 ## Backend Server
 
@@ -122,7 +146,8 @@ The server (`src/server.py`) provides:
 
 1. **REST API**: Sync endpoints for multi-client data synchronization
 2. **Static File Serving**: HTML, CSS, and JavaScript with cache busting
-3. **Database Management**: SQLite initialization and migrations
+3. **PWA Asset Serving**: Manifest, service worker, and icons with appropriate cache headers
+4. **Database Management**: SQLite initialization and migrations
 
 ### Static File Serving
 
@@ -135,6 +160,14 @@ SERVER_VERSION = uuid.uuid4().hex[:8]
 # Injected into HTML
 html = html.replace('href="/styles.css"', f'href="/styles.css?v={SERVER_VERSION}"')
 ```
+
+### PWA Asset Endpoints
+
+| Endpoint | Content-Type | Cache Policy |
+|----------|-------------|-------------|
+| `/manifest.json` | `application/manifest+json` | `no-cache, must-revalidate` |
+| `/sw.js` | `application/javascript` | `no-cache, must-revalidate` + `Service-Worker-Allowed: /` |
+| `/icons/{path}` | `image/png` or `image/svg+xml` | `public, max-age=86400` |
 
 ### API Endpoints
 
