@@ -46,32 +46,35 @@ export function TrackerItem({ tracker }) {
     };
 
     const handleValueChange = (e) => {
-        if (!editable) return;
+        if (!editable || !completed) return;
         const newValue = e.target.value === '' ? null : Number(e.target.value);
         updateEntry(date, tracker.id, { value: newValue });
     };
 
     const handleSliderChange = (e) => {
-        if (!editable) return;
+        if (!editable || !completed) return;
         updateEntry(date, tracker.id, { value: Number(e.target.value) });
     };
 
     const handleNoteChange = (e) => {
         if (!editable) return;
-        updateEntry(date, tracker.id, { value: e.target.value });
+        const noteValue = e.target.value;
+        updateEntry(date, tracker.id, { value: noteValue, completed: noteValue.trim() !== '' });
     };
 
     return html`
         <div class="tracker-item ${!editable ? 'disabled' : ''} ${tracker.type === 'note' ? 'tracker-item-note' : ''}">
             <div class="tracker-row">
-                <div class="tracker-checkbox">
-                    <input
-                        type="checkbox"
-                        checked=${completed}
-                        onChange=${handleCompletedChange}
-                        disabled=${!editable}
-                    />
-                </div>
+                ${tracker.type !== 'note' && html`
+                    <div class="tracker-checkbox">
+                        <input
+                            type="checkbox"
+                            checked=${completed}
+                            onChange=${handleCompletedChange}
+                            disabled=${!editable}
+                        />
+                    </div>
+                `}
                 <div class="tracker-info">
                     <div class="tracker-name">${tracker.name}</div>
                 </div>
